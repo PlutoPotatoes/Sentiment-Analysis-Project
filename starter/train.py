@@ -28,6 +28,16 @@ class NeuralNetwork(nn.Module):
         # you may change inputs to the init method as you want
         #######################
 
+        #create the embedding layer, our word embeddings for our input
+        self.embedding = nn.Embedding(self.vocab_size, self.embedding_dim)
+
+        #create the first hidden layer, takes the embeddings in and outputs the hidden layer sized output
+        self.linear1 = nn.Linear(self.embedding_dim, self.hidden_size)
+        #relu layer takes any input and returns a = 0 or >0 value
+        self.relu = nn.ReLU()
+        #second hidden layer, takes hidden in outputs our output
+        self.linear2 = nn.Linear(self.hidden_size, self.output_size, bias = False)
+
     def forward(self, x):
         #######################
         # TODO: Implement the forward pass
