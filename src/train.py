@@ -154,9 +154,9 @@ if __name__ == "__main__":
     ####################
 
     # Load training and test data
-    train_texts, train_labels = load_data('starter/data/train.txt')
+    train_texts, train_labels = load_data('src/data/train.txt')
     
-    test_texts, test_labels = load_data('starter/data/test.txt')
+    test_texts, test_labels = load_data('src/data/test.txt')
 
     # Preprocess text
     processor = TextProcessor(vocab_size=10000)
@@ -190,7 +190,7 @@ if __name__ == "__main__":
     print(f"Test F1 score: {evaluation_results['test_f1']:.4f}")
 
     # Save model weights to file
-    outfile = 'starter/models/trained_model.pth'
+    outfile = 'src/models/trained_model.pth'
     torch.save(model.state_dict(), outfile)
     print(f"Trained model saved to {outfile}")
     
