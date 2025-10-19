@@ -3,7 +3,7 @@ import torch.nn as nn
 import torch.optim as optim
 import numpy as np
 from utils import load_data, TextProcessor, convert_text_to_tensors
-from torch.utils.data import DataLoader
+from torch.utils.data import TensorDataset, DataLoader
 
 #########################################################
 # COMP331 Fall 2025 PA2
@@ -22,7 +22,7 @@ class NeuralNetwork(nn.Module):
         self.output_size = output_size
         self.max_length = max_length
         #######################
-        # TODO: Define your model class 
+        # Define your model class (Done - Ryan)
         # You must include an embedding layer, 
         # at least one linear layer, and an activation function
         # you may change inputs to the init method as you want
@@ -35,15 +35,28 @@ class NeuralNetwork(nn.Module):
         self.linear1 = nn.Linear(self.embedding_dim, self.hidden_size)
         #relu layer takes any input and returns a = 0 or >0 value
         self.relu = nn.ReLU()
-        #second hidden layer, takes hidden in outputs our output
-        self.linear2 = nn.Linear(self.hidden_size, self.output_size, bias = False)
+
+        #add any other layers here
+
+        #final hidden layer, takes hidden in outputs our output
+        self.output_layer = nn.Linear(self.hidden_size, self.output_size, bias = False)
 
     def forward(self, x):
         #######################
-        # TODO: Implement the forward pass
+        # Implement the forward pass (Done? - Ryan)
         #######################
-        
-        raise NotImplementedError("The forward pass is not yet implemented")
+        embed = self.embedding(x) #[batch_size, sequence_len, embed_dim] sized matrix
+        hidden1 = self.linear1(embed) #[batch_size, sequence_len, hidden_size]
+        relu = self.relu(hidden1)
+
+        #implement any other layers here
+
+        #now we pool and output our data and pass to our final layer
+        mean = torch.mean(relu, dim=1)
+        res = self.output_layer(mean)
+        return res
+
+
 
 def train(model, train_features, train_labels, test_features, test_labels, 
                 num_epochs=50, learning_rate=0.001):
@@ -68,7 +81,39 @@ def train(model, train_features, train_labels, test_features, test_labels,
     #   1. Use Adam as your optimizer (available in the optim.Adam() class) rather than SGD
     #######################
 
-    raise NotImplementedError("The train function is not yet implemented")
+    batch = 64
+    loss_function = nn.CrossEntropyLoss()
+    optimizer = optim.Adam(model.parameters(), lr=0.01)   
+
+    train_dataset = TensorDataset(train_features, train_labels)
+    train_dataloader = DataLoader(train_dataset, batch_size=batch, shuffle=True)
+
+    train_history = []
+    #set model to train mode?
+    model.train()
+
+    for j, epoch in enumerate(range(num_epochs)):
+        total_loss = 0
+        for i, (features, targets) in enumerate(train_dataloader):
+            #reset optimizer
+            optimizer.zero_grad()
+            #make our predictions
+            predictions = model(features)
+            #check how the model did and calculate loss
+            losses = loss_function(predictions, targets)
+            losses.backward()
+            #move our optimizer forwards one step
+            optimizer.step()
+            #tally losses
+            total_loss += losses.item()
+
+        #print results of 100 epochs
+        if j % 10 == 0:  # Print only every 100 epochs
+            avg_loss = total_loss / len(train_dataloader)
+            train_history.append(avg_loss)
+            print(f"Epoch {epoch}: average training loss: {avg_loss}")
+
+    return train_history
 
 def evaluate(model, test_features, test_labels):
     """
@@ -109,9 +154,9 @@ if __name__ == "__main__":
     ####################
 
     # Load training and test data
-    train_texts, train_labels = load_data('../data/train.txt')
+    train_texts, train_labels = load_data('starter/data/train.txt')
     
-    test_texts, test_labels = load_data('../data/test.txt')
+    test_texts, test_labels = load_data('starter/data/test.txt')
 
     # Preprocess text
     processor = TextProcessor(vocab_size=10000)
@@ -135,6 +180,8 @@ if __name__ == "__main__":
     training_history = train(model, train_features, train_labels, test_features, test_labels, 
                                   num_epochs=50, learning_rate=0.001)
     
+    print(training_history)
+
     # Evaluate
     evaluation_results = evaluate(model, test_features, test_labels)
     
@@ -143,7 +190,7 @@ if __name__ == "__main__":
     print(f"Test F1 score: {evaluation_results['test_f1']:.4f}")
 
     # Save model weights to file
-    outfile = '../trained_model.pth'
+    outfile = 'starter/models/trained_model.pth'
     torch.save(model.state_dict(), outfile)
     print(f"Trained model saved to {outfile}")
     
