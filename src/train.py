@@ -136,12 +136,38 @@ def evaluate(model, test_features, test_labels):
     # 2. Use torch.argmax() to get predicted classes
     #######################
     
+    model.eval()
+
+    with torch.no_grad():
+        prediction = model(test_features)
+        predicted_class = torch.argmax(prediction, dim=1)
+        #check and add to f1 calculations
+
+    TP = 0
+    FP= 0
+    TN = 0
+    FN = 0
+    total = predicted_class.size(dim=0)
+    for i in range(predicted_class.size(dim=0)):
+        if predicted_class[i] == test_labels[i]:
+            if predicted_class[i] == 1:
+                TP+=1
+            else:
+                TN+=1
+        else:
+            if predicted_class[i] == 1:
+                FP+=1
+            else:
+                FN+=1
+
+
+
     return {
-        'test_accuracy': 0.0, 
-        'test_precision': 0.0,
-        'test_recall': 0.0,
-        'test_f1': 0.0,
-    } # modify this return statement as you want
+        'test_accuracy': (TP+TN)/total, 
+        'test_precision': TP/(TP+FP),
+        'test_recall': TP/(TP+FN),
+        'test_f1': (2*(TP/(TP+FP))*(TP/(TP+FN)))/(TP/(TP+FP) + (TP/(TP+FN))),
+    }
 
 
 if __name__ == "__main__":
@@ -177,17 +203,22 @@ if __name__ == "__main__":
     model = NeuralNetwork(vocab_size, embedding_dim, hidden_size, output_size, max_length)
     
     # Train
-    training_history = train(model, train_features, train_labels, test_features, test_labels, 
-                                  num_epochs=50, learning_rate=0.001)
+    #training_history = train(model, train_features, train_labels, test_features, test_labels, 
+    #                              num_epochs=50, learning_rate=0.001)
     
-    print(training_history)
+    #print(training_history)
 
+    model.load_state_dict(torch.load('src/models/trained_model.pth'))
+
+    #TODO you are here, make evaluate() and move on to predict
     # Evaluate
     evaluation_results = evaluate(model, test_features, test_labels)
     
     print(f"Model performance report: \n")
     print(f"Test accuracy: {evaluation_results['test_accuracy']:.4f}")
     print(f"Test F1 score: {evaluation_results['test_f1']:.4f}")
+    print(f"Test Precision score: {evaluation_results['test_precision']:.4f}")
+    print(f"Test Recall score: {evaluation_results['test_recall']:.4f}")
 
     # Save model weights to file
     outfile = 'src/models/trained_model.pth'

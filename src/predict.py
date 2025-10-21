@@ -33,6 +33,9 @@ def load_model(model_path, vocab_size, embedding_dim, hidden_size, output_size, 
     #   1. Create model: model = NeuralNetwork(vocab_size, embedding_dim, hidden_size, output_size, max_length)
     #   2. Load weights: model.load_state_dict(torch.load(model_path))
     ################################   
+
+    model.load_state_dict(torch.load('src/models/trained_model.pth'))
+
     
     raise NotImplementedError("The load_model function is not yet implemented")
 
