@@ -1,7 +1,8 @@
-import torch
+import torch 
 import torch.nn as nn
 from utils import load_data, TextProcessor, convert_text_to_tensors
 from train import NeuralNetwork
+from torch.utils.data import TensorDataset, DataLoader
 
 #########################################################
 # COMP331 Fall 2025 PA2
@@ -33,11 +34,10 @@ def load_model(model_path, vocab_size, embedding_dim, hidden_size, output_size, 
     #   1. Create model: model = NeuralNetwork(vocab_size, embedding_dim, hidden_size, output_size, max_length)
     #   2. Load weights: model.load_state_dict(torch.load(model_path))
     ################################   
-
-    model.load_state_dict(torch.load('src/models/trained_model.pth'))
-
-    
-    raise NotImplementedError("The load_model function is not yet implemented")
+    model = NeuralNetwork(vocab_size, embedding_dim, hidden_size, output_size, max_length)
+    model.load_state_dict(torch.load(model_path))
+    model.eval()
+    return model
 
 def predict_unlabeled_data(model, processor, unlabeled_texts, outfile, batch_size=1000, max_length=100):
     """
@@ -61,14 +61,21 @@ def predict_unlabeled_data(model, processor, unlabeled_texts, outfile, batch_siz
     #  4. Decompose it into smaller tasks if you want
     ########################################################   
 
-    raise NotImplementedError("The predict_unlabeled_data function is not yet implemented")
+    #TODO YOU ARE HERE, FIGURE THIS SHIT OUT - Ryan
+    train_dataloader = DataLoader(unlabeled_texts, batch_size=batch_size)
+    for i, (features, targets) in enumerate(train_dataloader):
+        predictions = model(features)
+        print(predictions)
+
+
+
 
 
 if __name__ == "__main__":
 
     
     # Load the unlabeled data (Labels were set to -1)
-    unlabeled_file = '../data/unlabeled.txt'
+    unlabeled_file = 'src/data/unlabeled.txt'
 
     print("Predicting labels for unlabeled data")
 
@@ -76,7 +83,7 @@ if __name__ == "__main__":
     unlabeled_texts, _ = load_data(unlabeled_file)  
 
     # Load training data to build vocabulary (required for text preprocessing)
-    train_file = '../data/train.txt'
+    train_file = 'src/data/train.txt'
     train_texts, _ = load_data(train_file)
 
     ####################
@@ -90,14 +97,13 @@ if __name__ == "__main__":
     max_length = 100
     processor = TextProcessor(vocab_size=vocab_size)
     processor.build_vocab(train_texts)
-
     # Define model parameters (must match the trained model)
     embedding_dim = 100
     hidden_size = 64
     output_size = 2
 
     # Load the trained model
-    model_path = '../trained_model.pth'
+    model_path = 'src/models/trained_model.pth'
 
     try:
         model = load_model(model_path, vocab_size, embedding_dim, hidden_size, output_size, max_length)
@@ -106,5 +112,5 @@ if __name__ == "__main__":
         exit()
     
     # Predict labels and save to file
-    outfile = '../data/predictions.txt'
+    outfile = 'src/data/predictions.txt'
     predict_unlabeled_data(model, processor, unlabeled_texts, outfile, max_length=max_length)
