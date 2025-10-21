@@ -11,7 +11,7 @@ from torch.utils.data import TensorDataset, DataLoader
 #########################################################
 
 
-def load_model(model_path, vocab_size, embedding_dim, hidden_size, output_size, max_length=100):
+def load_model(model_path, vocab_size, embedding_dim, hidden_size, output_size, max_length=64):
     """
     Load a pre-trained model from file
     
@@ -62,10 +62,23 @@ def predict_unlabeled_data(model, processor, unlabeled_texts, outfile, batch_siz
     ########################################################   
 
     #TODO YOU ARE HERE, FIGURE THIS SHIT OUT - Ryan
-    train_dataloader = DataLoader(unlabeled_texts, batch_size=batch_size)
-    for i, (features, targets) in enumerate(train_dataloader):
-        predictions = model(features)
-        print(predictions)
+
+    features = convert_text_to_tensors(unlabeled_texts, processor, max_length)
+    print(features)
+    text_pairs = zip(features, unlabeled_texts)
+
+    #train_dataloader = DataLoader(unlabeled_texts, batch_size=batch_size)
+    for i, (feature, text) in enumerate(text_pairs):
+        prediction = model(feature)
+        predicted_class = torch.argmax(prediction)
+        print(text)
+        print(predicted_class.item())
+        with open(outfile, 'a+') as f:
+            text = text.replace('\x85', '').replace('\x96', '').replace('\x97', '')
+            text = text.replace('\x91', '').replace('\u015f', '').replace('\x99', '')
+            text = text.replace('\u015f', '').replace('\u0435', '').replace('\u0107','')
+            text = text.replace('\u0131', '')
+            f.write(text + " " + str(predicted_class.item()) + "\n")
 
 
 
@@ -94,7 +107,7 @@ if __name__ == "__main__":
     # Preprocess text and build vocabulary 
     # vocabulary size and max length must match the trained model
     vocab_size = 10000
-    max_length = 100
+    max_length = 64
     processor = TextProcessor(vocab_size=vocab_size)
     processor.build_vocab(train_texts)
     # Define model parameters (must match the trained model)

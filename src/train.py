@@ -203,14 +203,13 @@ if __name__ == "__main__":
     model = NeuralNetwork(vocab_size, embedding_dim, hidden_size, output_size, max_length)
     
     # Train
-    #training_history = train(model, train_features, train_labels, test_features, test_labels, 
-    #                              num_epochs=50, learning_rate=0.001)
+    training_history = train(model, train_features, train_labels, test_features, test_labels, 
+                                  num_epochs=20, learning_rate=0.001)
     
-    #print(training_history)
+    print(training_history)
 
     model.load_state_dict(torch.load('src/models/trained_model.pth'))
 
-    #TODO you are here, make evaluate() and move on to predict
     # Evaluate
     evaluation_results = evaluate(model, test_features, test_labels)
     
