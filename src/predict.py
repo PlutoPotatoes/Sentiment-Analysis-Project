@@ -62,9 +62,9 @@ def predict_unlabeled_data(model, processor, unlabeled_texts, outfile, batch_siz
     ########################################################   
 
     #TODO YOU ARE HERE, FIGURE THIS SHIT OUT - Ryan
-
+    #tokenize the features maybe?
+    #features = processor.tokenize(unlabeled_texts)
     features = convert_text_to_tensors(unlabeled_texts, processor, max_length)
-    print(features)
     text_pairs = zip(features, unlabeled_texts)
 
     #train_dataloader = DataLoader(unlabeled_texts, batch_size=batch_size)
@@ -73,7 +73,7 @@ def predict_unlabeled_data(model, processor, unlabeled_texts, outfile, batch_siz
         predicted_class = torch.argmax(prediction)
         print(text)
         print(predicted_class.item())
-        with open(outfile, 'a+') as f:
+        with open(outfile, 'a') as f:
             text = text.replace('\x85', '').replace('\x96', '').replace('\x97', '')
             text = text.replace('\x91', '').replace('\u015f', '').replace('\x99', '')
             text = text.replace('\u015f', '').replace('\u0435', '').replace('\u0107','')

@@ -142,6 +142,7 @@ def evaluate(model, test_features, test_labels):
         prediction = model(test_features)
         predicted_class = torch.argmax(prediction, dim=1)
         #check and add to f1 calculations
+    print(test_labels.tolist())
 
     TP = 0
     FP= 0
@@ -207,8 +208,6 @@ if __name__ == "__main__":
                                   num_epochs=20, learning_rate=0.001)
     
     print(training_history)
-
-    model.load_state_dict(torch.load('src/models/trained_model.pth'))
 
     # Evaluate
     evaluation_results = evaluate(model, test_features, test_labels)
