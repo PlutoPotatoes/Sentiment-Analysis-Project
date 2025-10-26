@@ -61,7 +61,6 @@ def predict_unlabeled_data(model, processor, unlabeled_texts, outfile, batch_siz
     #  4. Decompose it into smaller tasks if you want
     ########################################################   
 
-    #TODO YOU ARE HERE, FIGURE THIS SHIT OUT - Ryan
     #tokenize the features maybe?
     #features = processor.tokenize(unlabeled_texts)
     features = convert_text_to_tensors(unlabeled_texts, processor, max_length)
