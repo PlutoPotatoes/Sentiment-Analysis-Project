@@ -145,7 +145,6 @@ def evaluate(model, test_features, test_labels):
         prediction = model(test_features)
         predicted_class = torch.argmax(prediction, dim=1)
         #check and add to f1 calculations
-    print(test_labels.tolist())
 
     TP = 0
     FP= 0
@@ -238,7 +237,7 @@ if __name__ == "__main__":
     
     # Train
     training_history = train(model, train_features, train_labels, test_features, test_labels, 
-                                  num_epochs=20, learning_rate=0.001)
+                                  num_epochs=30, learning_rate=0.001)
     
     print(training_history)
 
