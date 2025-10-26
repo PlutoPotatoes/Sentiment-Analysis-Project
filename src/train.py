@@ -37,6 +37,7 @@ class NeuralNetwork(nn.Module):
         self.relu = nn.ReLU()
 
         #add any other layers here
+        #other layers should follow the same linear-activation-linear sandwich strategy
 
         #final hidden layer, takes hidden in outputs our output
         self.output_layer = nn.Linear(self.hidden_size, self.output_size, bias = False)

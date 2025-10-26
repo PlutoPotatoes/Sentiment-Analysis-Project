@@ -68,12 +68,10 @@ def predict_unlabeled_data(model, processor, unlabeled_texts, outfile, batch_siz
     text_pairs = zip(features, unlabeled_texts)
 
     #train_dataloader = DataLoader(unlabeled_texts, batch_size=batch_size)
-    for i, (feature, text) in enumerate(text_pairs):
-        prediction = model(feature)
-        predicted_class = torch.argmax(prediction)
-        print(text)
-        print(predicted_class.item())
-        with open(outfile, 'a') as f:
+    with open(outfile, 'w') as f:
+        for i, (feature, text) in enumerate(text_pairs):
+            prediction = model(feature)
+            predicted_class = torch.argmax(prediction)
             text = text.replace('\x85', '').replace('\x96', '').replace('\x97', '')
             text = text.replace('\x91', '').replace('\u015f', '').replace('\x99', '')
             text = text.replace('\u015f', '').replace('\u0435', '').replace('\u0107','')
