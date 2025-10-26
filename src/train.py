@@ -40,6 +40,9 @@ class NeuralNetwork(nn.Module):
 
         #add any other layers here
         #other layers should follow the same linear-activation-linear sandwich strategy
+        self.linear2 = nn.Linear(self.hidden_size, self.hidden_size)
+        self.relu2 = nn.ReLU()
+        
 
         #final hidden layer, takes hidden in outputs our output
         self.output_layer = nn.Linear(self.hidden_size, self.output_size, bias = False)
