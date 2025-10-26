@@ -5,6 +5,8 @@ import numpy as np
 from utils import load_data, TextProcessor, convert_text_to_tensors
 from torch.utils.data import TensorDataset, DataLoader
 
+import random
+
 #########################################################
 # COMP331 Fall 2025 PA2
 # This file contains the model class, training loop and evaluation function 
@@ -83,7 +85,7 @@ def train(model, train_features, train_labels, test_features, test_labels,
 
     batch = 64
     loss_function = nn.CrossEntropyLoss()
-    optimizer = optim.Adam(model.parameters(), lr=0.01)   
+    optimizer = optim.Adam(model.parameters(), lr=learning_rate)   
 
     train_dataset = TensorDataset(train_features, train_labels)
     train_dataloader = DataLoader(train_dataset, batch_size=batch, shuffle=True)
@@ -184,6 +186,36 @@ if __name__ == "__main__":
     train_texts, train_labels = load_data('src/data/train.txt')
     
     test_texts, test_labels = load_data('src/data/test.txt')
+
+#=====================================================
+    #combine test and train data for shuffling
+    all_texts = train_texts + test_texts
+    all_labels = torch.cat((train_labels, test_labels))
+
+
+    # zip together for shuffling
+    combined_data = list(zip(all_texts, all_labels.tolist()))
+    
+    # shuffle
+    random.shuffle(combined_data)
+    
+    # Unzip
+    shuffled_texts, shuffled_labels_list = zip(*combined_data)
+    
+    # Convert back to a tensor
+    shuffled_labels = torch.tensor(shuffled_labels_list, dtype=torch.long)
+
+    # split 80% for train, 20% for test
+    split_idx = int(len(shuffled_texts) * 0.8) # 80% for train, 20% for test
+    
+    train_texts = shuffled_texts[:split_idx]
+    train_labels = shuffled_labels[:split_idx]
+    
+    test_texts = shuffled_texts[split_idx:]
+    test_labels = shuffled_labels[split_idx:]
+    
+    #=====================================================
+
 
     # Preprocess text
     processor = TextProcessor(vocab_size=10000)
